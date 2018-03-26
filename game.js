@@ -50,7 +50,7 @@ class Actor {
     }
 
     get type() {
-        return 'actor';
+        return this.typeName;
     }
 
     isIntersect(movingObject) {
@@ -176,7 +176,7 @@ MyCoin.constructor = MyCoin;
 
 const goldCoin = new MyCoin('Золото');
 const bronzeCoin = new MyCoin('Бронза');
-const player = new Actor();
+const player = new Player();
 const fireball = new Actor();
 
 const level = new Level(grid, [ goldCoin, bronzeCoin, player, fireball ]);
