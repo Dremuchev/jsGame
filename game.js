@@ -24,42 +24,33 @@ class Actor {
     constructor(pos = new Vector(), size = new Vector(1, 1), speed = new Vector()) {
         if (pos instanceof Vector && size instanceof Vector && speed instanceof Vector) {
             this.pos = pos,
-                this.size = size,
-                this.speed = speed,
-                this.act = function () {
-                },
-                Object.defineProperty(this, 'left', {
-                    get: function () {
-                        return this.pos.x;
-                    }, set: function (newValue) {
-                        this.pos.x += pos.x;
-                    }
-                }),
-                Object.defineProperty(this, 'top', {
-                    get: function () {
-                        return this.pos.y;
-                    }, set: function (newValue) {
-                        this.pos.y += pos.y;
-                    }
-                }),
-                Object.defineProperty(this, 'right', {
-                    get: function () {
-                        return this.pos.x + this.size.x;
-                    }, set: function (newValue) {
-                        this.pos.x += this.pos.x;
-                    }
-                }),
-                Object.defineProperty(this, 'bottom', {
-                    get: function () {
-                        return this.pos.y + this.size.y;
-                    }, set: function (newValue) {
-                        this.pos.y += this.pos.y;
-                    }
-                }),
-                Object.defineProperty(this, 'type', {value: 'actor', writable: true});
+            this.size = size,
+            this.speed = speed,
+            this.act = function () {},
+            this.typeName = 'actor';
         } else {
             throw new Error('Неверные аргументы!');
         }
+    }
+
+    get left() {
+        return this.pos.x;
+    }
+
+    get top() {
+        return this.pos.y;
+    }
+
+    get right() {
+        return this.pos.x + this.size.x;
+    }
+
+    get bottom() {
+        return this.pos.y + this.size.y;
+    }
+
+    get type() {
+        return 'actor';
     }
 
     isIntersect(movingObject) {
@@ -97,16 +88,15 @@ class Actor {
     }
 }
 
-class Pleer extends Actor {
-    constructor(pos = new Vector(), size = new Vector(1, 1), speed = new Vector()) {
-        super(pos, size, speed);
-        this.type = 'pleer';
+class Player extends Actor {
+    constructor(pos = new Vector()) {
+        super(pos);
+        this.pos.y = pos.y - 0.5;
+        this.size = new Vector(0.8, 1.5);
+        this.typeName = 'pleer';
     }
 
 }
-
-const pleer1 = new Pleer();
-console.log(pleer1.type)
 
 class Level {
     constructor(grid = [], actors = []) {
@@ -190,6 +180,7 @@ const player = new Actor();
 const fireball = new Actor();
 
 const level = new Level(grid, [ goldCoin, bronzeCoin, player, fireball ]);
+console.log(level)
 
 level.playerTouched('coin', goldCoin);
 level.playerTouched('coin', bronzeCoin);
