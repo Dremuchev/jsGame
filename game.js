@@ -56,7 +56,7 @@ class Actor {
                         this.pos.y += this.pos.y;
                     }
                 }),
-                Object.defineProperty(this, 'type', {value: 'actor', writable: false});
+                Object.defineProperty(this, 'type', {value: 'actor', writable: true});
         } else {
             throw new Error('Неверные аргументы!');
         }
@@ -96,6 +96,17 @@ class Actor {
         }
     }
 }
+
+class Pleer extends Actor {
+    constructor(pos = new Vector(), size = new Vector(1, 1), speed = new Vector()) {
+        super(pos, size, speed);
+        this.type = 'pleer';
+    }
+
+}
+
+const pleer1 = new Pleer();
+console.log(pleer1.type)
 
 class Level {
     constructor(grid = [], actors = []) {
