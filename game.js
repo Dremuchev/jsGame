@@ -205,14 +205,3 @@ class Level {
 }
 
 // new Vector( x - ячейка, y - строка )
-
-console.log();
-console.log();
-console.log();
-console.log();
-console.log();
-
-
-
-
-
