@@ -3,7 +3,7 @@
 class Vector {
     constructor(x = 0, y = 0) {
         this.x = x,
-            this.y = y;
+        this.y = y;
     }
 
     plus(vector) {
@@ -60,27 +60,31 @@ class Actor {
         if (Object.is(this, movingObject)) {
             return false;
         }
-        if (this.left === movingObject.left && this.top === movingObject.top && (movingObject.right < 0 || movingObject.bottom < 0)) {
+        if (this.left === movingObject.left
+            && this.top === movingObject.top
+            && (movingObject.right < 0 || movingObject.bottom < 0)) {
             return false;
         }
-        if (this.top === movingObject.bottom || this.right === movingObject.left || this.bottom === movingObject.top || this.left === movingObject.right) {
+        if (this.top === movingObject.bottom
+            || this.right === movingObject.left
+            || this.bottom === movingObject.top
+            || this.left === movingObject.right) {
             return false;
         }
-        if (
-            (
-                (
-                    ( this.top >= movingObject.top && this.top <= movingObject.bottom ) || ( this.bottom > movingObject.top && this.bottom <= movingObject.bottom  )
-                ) && (
-                    ( this.left >= movingObject.left && this.left <= movingObject.right ) || ( this.right >= movingObject.left && this.right <= movingObject.right )
-                )
-            ) || (
-                (
-                    ( movingObject.top >= this.top && movingObject.top <= this.bottom ) || ( movingObject.bottom >= this.top && movingObject.bottom <= this.bottom )
-                ) && (
-                    ( movingObject.left >= this.left && movingObject.left <= this.right) || ( movingObject.right >= this.left && movingObject.right <= this.right )
-                )
-            )
-        ) {
+        if (((
+        ( this.top >= movingObject.top && this.top <= movingObject.bottom )
+        || ( this.bottom > movingObject.top && this.bottom <= movingObject.bottom  )
+        ) && (
+        ( this.left >= movingObject.left && this.left <= movingObject.right )
+        || ( this.right >= movingObject.left && this.right <= movingObject.right )
+        )
+        ) || ((
+        ( movingObject.top >= this.top && movingObject.top <= this.bottom )
+        || ( movingObject.bottom >= this.top && movingObject.bottom <= this.bottom )
+        ) && (
+        ( movingObject.left >= this.left && movingObject.left <= this.right)
+        || ( movingObject.right >= this.left && movingObject.right <= this.right )
+        ))) {
             return true;
         } else {
             return false;
@@ -93,9 +97,29 @@ class Player extends Actor {
         super(pos);
         this.pos.y = pos.y - 0.5;
         this.size = new Vector(0.8, 1.5);
-        this.typeName = 'pleer';
+        this.typeName = 'player';
     }
+}
 
+class Gift extends Actor {
+    constructor(pos = new Vector()) {
+        super(pos);
+        this.typeName = 'gift';
+    }
+}
+
+class Coin extends Actor {
+    constructor(pos = new Vector()) {
+        super(pos);
+        this.typeName = 'coin';
+    }
+}
+
+class Mushroom extends Actor {
+    constructor(pos = new Vector()) {
+        super(pos);
+        this.typeName = 'mushroom';
+    }
 }
 
 class Level {
@@ -103,18 +127,22 @@ class Level {
         if(arguments.length > 0) {
             this.grid = grid;
             this.actors = actors;
-            this.player = actors.find( (el) => el === player );
-            if(this.grid === 0) {
-                this.height = 0;
-            } else {
-                if (grid.length > 1) {
-                    const nextArray = [];
-                    grid.forEach((el) => nextArray.push(el.length));
-                    this.height = grid.length;
-                    this.width =  Math.max.apply(null, nextArray);
-                } else {
-                    this.width = grid.length;
+            this.player = actors.find( (el, index) => {
+                if( el.type === 'player' ) {
+                    return el;
                 }
+            });
+            if(grid.length > 0 && Array.isArray(grid[0])) {
+                const nextArray = [];
+                grid.forEach((el) => nextArray.push(el.length));
+                this.width =  Math.max.apply(null, nextArray);
+                this.height = grid.length;
+            } else if(grid[0] === undefined) {
+                this.width = 0
+                this.height = grid.length;
+            } else {
+                this.height = grid.length;
+                this.width = 1;
             }
             this.status = null;
             this.finishDelay = 1;
@@ -136,66 +164,64 @@ class Level {
     }
 
     actorAt(actor) {
-        if (!(actor instanceof Actor) || actor === null) {
+        if ( !(actor instanceof Actor) || actor === null ) {
             throw new Error('Неверный аргумент!');
+        }
+        if( this.actors === undefined || this.actors.length === 1 ) {
+            return undefined;
+        } else if( this.actors.find( (el) => el.isIntersect(actor) ) ) {
+            return this.actors.find( (el) => el.isIntersect(actor));
+        } else {
+            return undefined;
         }
     }
 
     obstacleAt(pos, size) {
-        if (pos instanceof Vector && size instanceof Vector) {
-
-        } else {
+        if ( !(pos instanceof Vector && size instanceof Vector) ) {
             throw new Error('Невреные аргументы!');
+        }
+        if( pos.x < 0  || pos.x >= this.width || pos.y < 0 ) {
+            return 'wall';
+        } else if( pos.y >= this.height ) {
+            return 'lava';
+        } else if( !Number.isInteger(pos.x) || !Number.isInteger(pos.y) ) {
+            return 'wall';
+        } else if( this.grid[pos.y][pos.x] === 'wall' ) {
+            return 'wall';
+        } else if( this.grid[pos.y][pos.x] === 'lava' ) {
+            return 'lava';
+        } else {
+            return undefined;
         }
     }
 
-    removeActor(actor) {
-
-    }
-
-    noMoreActors(type) {
-
-    }
-
-    playerTouched(breakpoint, str, actor) {
-
-    }
 }
 
+// new Vector( x - ячейка, y - строка )
+
+console.log();
+
+// const grid = new Array(2).fill(new Array(2));
+// const grid = new Array(2).fill(new Array(2).fill('wall'));
+// const grid = new Array(2).fill(new Array(2).fill('lava'));
 const grid = [
-    [undefined, undefined],
-    ['wall', 'wall']
+    Array(4),
+    Array(4),
+    Array(4),
+    Array(4).fill('wall')
 ];
+const level = new Level(grid);
+const position = new Vector(2.1, 1.5);
+const size = new Vector(0.8, 1.5);
 
-function MyCoin(title) {
-    this.type = 'coin';
-    this.title = title;
-}
-MyCoin.prototype = Object.create(Actor);
-MyCoin.constructor = MyCoin;
 
-const goldCoin = new MyCoin('Золото');
-const bronzeCoin = new MyCoin('Бронза');
-const player = new Player();
-const fireball = new Actor();
+console.log(level.obstacleAt(position, size));
 
-const level = new Level(grid, [ goldCoin, bronzeCoin, player, fireball ]);
-console.log(level)
+console.log();
 
-level.playerTouched('coin', goldCoin);
-level.playerTouched('coin', bronzeCoin);
+console.log(level);
 
-if (level.noMoreActors('coin')) {
-    console.log('Все монеты собраны');
-    console.log(`Статус игры: ${level.status}`);
-}
+console.log();
 
-const obstacle = level.obstacleAt(new Vector(1, 1), player.size);
-if (obstacle) {
-    console.log(`На пути препятствие: ${obstacle}`);
-}
 
-const otherActor = level.actorAt(player);
-if (otherActor === fireball) {
-    console.log('Пользователь столкнулся с шаровой молнией');
-}
+
