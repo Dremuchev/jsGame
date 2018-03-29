@@ -185,7 +185,14 @@ class Level {
         } else if( pos.y >= this.height ) {
             return 'lava';
         } else if( !Number.isInteger(pos.x) || !Number.isInteger(pos.y) ) {
-            return 'wall';
+            if( this.grid[Math.floor(pos.y + size.y)][Math.floor(pos.x + size.x)] !== 'wall'
+            || this.grid[Math.floor(pos.y)][Math.floor(pos.x + size.x)] !== 'wall'
+            || this.grid[Math.floor(pos.y)][Math.floor(pos.x)] !== 'wall'
+            || this.grid[Math.floor(pos.y)][Math.floor(pos.x + size.x)] !== 'wall' ) {
+                return undefined;
+            } else {
+                return 'wall';
+            }
         } else if( this.grid[pos.y][pos.x] === 'wall' ) {
             return 'wall';
         } else if( this.grid[pos.y][pos.x] === 'lava' ) {
@@ -201,27 +208,7 @@ class Level {
 
 console.log();
 
-// const grid = new Array(2).fill(new Array(2));
-// const grid = new Array(2).fill(new Array(2).fill('wall'));
-// const grid = new Array(2).fill(new Array(2).fill('lava'));
-const grid = [
-    Array(4),
-    Array(4),
-    Array(4),
-    Array(4).fill('wall')
-];
-const level = new Level(grid);
-const position = new Vector(2.1, 1.5);
-const size = new Vector(0.8, 1.5);
 
-
-console.log(level.obstacleAt(position, size));
-
-console.log();
-
-console.log(level);
-
-console.log();
 
 
 
