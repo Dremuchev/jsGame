@@ -203,25 +203,62 @@ class Level {
     }
 
     removeActor(actor) {
-        if(this.actors.indexOf(actor) >= 0) {
-            this.actors.splice( this.actors.indexOf(actor), 1 );
+        this.actors.splice( this.actors.indexOf(actor), 1 );
+    }
+
+    noMoreActors(actorType) {
+        if(this.actors === undefined) {
+            return true;
+        } else if(this.actors.filter( (el) => el.type === actorType ).length === 0) {
+            return true;
+        } else return false;
+    }
+
+    playerTouched(object, actor) {
+        if(this.status === null) {
+            if(object === 'lava' || object === 'fireball') {
+                this.status = 'lost';
+            }
+            if(object === 'coin' && actor !== undefined) {
+                this.actors.splice( this.actors.indexOf(actor), 1);
+                if(!( this.actors.find( (el) => el.type === 'coin' ) ) ) {
+                    this.status = 'won';
+                }
+            }
         }
     }
 
 }
 
+class LevelParser {
+    constructor(actorDict) {
+        this.actorDict = actorDict;
+    }
+}
+
 // new Vector( x - ячейка, y - строка )
 
-const mushroom = new Mushroom;
-const giftSmall = new Gift;
-const player = new Player;
+const schema = [
+    '         ',
+    '         ',
+    '    =    ',
+    '       o ',
+    '     !xxx',
+    ' @       ',
+    'xxx!     ',
+    '         '
+];
+const actorDict = {
+    '@': Player,
+    '=': HorizontalFireball
+}
+const parser = new LevelParser(actorDict);
+const level = parser.parse(schema);
+runLevel(level, DOMDisplay)
+.then(status => console.log(`Игрок ${status}`));
 
-const level = new Level(undefined, [ mushroom, giftSmall ]);
 
 
-console.log();
-level.removeActor(mushroom);
-console.log(level.actors.includes(mushroom));
 
-console.log(level)
+
 
