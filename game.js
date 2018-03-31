@@ -202,6 +202,26 @@ class Level {
         }
     }
 
+    removeActor(actor) {
+        if(this.actors.indexOf(actor) >= 0) {
+            this.actors.splice( this.actors.indexOf(actor), 1 );
+        }
+    }
+
 }
 
 // new Vector( x - ячейка, y - строка )
+
+const mushroom = new Mushroom;
+const giftSmall = new Gift;
+const player = new Player;
+
+const level = new Level(undefined, [ mushroom, giftSmall ]);
+
+
+console.log();
+level.removeActor(mushroom);
+console.log(level.actors.includes(mushroom));
+
+console.log(level)
+
