@@ -236,26 +236,43 @@ class LevelParser {
     }
 }
 
-// new Vector( x - ячейка, y - строка )
+class Fireball extends Actor {
+    constructor(pos = new Vector(), speed = new Vector()) {
+        super();
+        this.pos = pos;
+        this.speed = speed;
+        this.typeName = 'fireball';
+        this.act = function(time, level) {
+            const nextPos = this.getNextPosition(time);
+            if(level.obstacleAt(nextPos, this.size) === undefined) {
+                this.pos.x = nextPos.x;
+                this.pos.y = nextPos.y;
+            } else {
+                this.handleObstacle();
+            }
+        }
+    }
 
-const schema = [
-    '         ',
-    '         ',
-    '    =    ',
-    '       o ',
-    '     !xxx',
-    ' @       ',
-    'xxx!     ',
-    '         '
-];
-const actorDict = {
-    '@': Player,
-    '=': HorizontalFireball
+    getNextPosition(time) {
+        if(this.speed.x === 0 && this.speed.y === 0) {
+            return this.pos;
+        } else if(time === undefined) {
+            return new Vector().plus(this.pos).plus(this.speed);
+        } else {
+            return new Vector().plus(this.pos).plus(this.speed.times(time));
+        }
+    }
+
+    handleObstacle() {
+        this.speed.x *= -1;
+        this.speed.y *= -1;
+    }
+
 }
-const parser = new LevelParser(actorDict);
-const level = parser.parse(schema);
-runLevel(level, DOMDisplay)
-.then(status => console.log(`Игрок ${status}`));
+
+
+
+
 
 
 
