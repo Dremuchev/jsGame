@@ -218,7 +218,68 @@ class LevelParser {
     constructor(actorDict) {
         this.actorDict = actorDict;
     }
+
+    actorFromSymbol(sym) {
+        for ( let key in this.actorDict ) {
+            if( key === sym ) {
+                return this.actorDict[sym];
+            }
+        }
+    }
+
+    obstacleFromSymbol(sym) {
+        if( sym === 'x' ) {
+            return 'wall';
+        } else if( sym === '!' ) {
+            return 'lava';
+        } else return undefined;
+    }
+
+    createGrid(array) {
+        if( array.length === 0 ) {
+            return [];
+        } else {
+            const mapLevel = [];
+            array.forEach( (el) => mapLevel.push( el.split('') ) );
+
+            mapLevel.forEach( (row, index) => {
+                row.forEach( (cell, num) => {
+                    row[num] = this.obstacleFromSymbol(cell);
+                })
+            })
+            return mapLevel;
+        }
+    }
+
 }
+
+const actorDict = {
+    'x': 'wall',
+    '!': 'lava'
+}
+
+const plan = [
+    'x  x',
+    '!!!!'
+];
+
+const parser = new LevelParser();
+const grid = parser.createGrid(plan);
+console.log(plan.length, grid);
+
+// const actorDict = {
+//     'x': 'wall',
+//     '!': 'lava',
+//     '@': Player,
+//     'o': Coin,
+//     '=': HorizontalFireball,
+//     '|': VerticalFireball,
+//     'v': FireRain
+// }
+
+
+
+
 
 class Fireball extends Actor {
     constructor(pos = new Vector(), speed = new Vector()) {
@@ -270,8 +331,16 @@ class VerticalFireball extends Fireball {
 
 }
 
-class FireRain {
+class FireRain extends Fireball {
+    constructor(pos) {
+        super(pos);
+        this.speed = new Vector(0, 3);
+        this.basePos = this.pos;
+    }
 
+    handleObstacle() {
+        this.pos = this.basePos;
+    }
 }
 
 class Coin extends Actor {
