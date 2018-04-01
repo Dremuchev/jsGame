@@ -92,26 +92,10 @@ class Actor {
     }
 }
 
-class Player extends Actor {
-    constructor(pos = new Vector()) {
-        super(pos);
-        this.pos.y = pos.y - 0.5;
-        this.size = new Vector(0.8, 1.5);
-        this.typeName = 'player';
-    }
-}
-
 class Gift extends Actor {
     constructor(pos = new Vector()) {
         super(pos);
         this.typeName = 'gift';
-    }
-}
-
-class Coin extends Actor {
-    constructor(pos = new Vector()) {
-        super(pos);
-        this.typeName = 'coin';
     }
 }
 
@@ -268,6 +252,66 @@ class Fireball extends Actor {
         this.speed.y *= -1;
     }
 
+}
+
+class HorizontalFireball extends Fireball {
+    constructor(pos = new Vector(), speed = new Vector()) {
+        super(pos, speed);
+        this.speed = new Vector(2, 0);
+    }
+
+}
+
+class VerticalFireball extends Fireball {
+    constructor(pos = new Vector(), speed = new Vector()) {
+        super(pos, speed);
+        this.speed = new Vector(0, 2);
+    }
+
+}
+
+class FireRain {
+
+}
+
+class Coin extends Actor {
+    constructor(pos = new Vector()) {
+        super(pos);
+        this.pos = pos.plus(new Vector(0.2, 0.1));
+        this.size = new Vector(0.6, 0.6);
+        this.typeName = 'coin';
+        this.spring = Math.random() * ((2*Math.PI) - 0) + 0;
+        this.springSpeed = 8;
+        this.springDist = 0.07;
+        this.basePos = pos.plus(new Vector(0.2, 0.1));
+        this.act = function (time) {
+            this.pos = this.getNextPosition(time);
+        }
+    }
+
+    updateSpring(time = 1) {
+        this.spring += (this.springSpeed * time);
+    }
+
+    getSpringVector() {
+        return new Vector(0, Math.sin(this.spring) * this.springDist);
+    }
+
+    getNextPosition(time = 1) {
+        this.spring += this.springSpeed * time;
+        return this.basePos.plus(this.getSpringVector());
+
+    }
+
+}
+
+class Player extends Actor {
+    constructor(pos = new Vector()) {
+        super(pos);
+        this.pos = pos.plus(new Vector(0, -0.5));
+        this.size = new Vector(0.8, 1.5);
+        this.typeName = 'player';
+    }
 }
 
 
