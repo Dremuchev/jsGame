@@ -360,18 +360,22 @@ class LevelParser {
             console.log(this.actorDict);
             return [];
         } else {
-            array.forEach( (el) => {
-                if(this.actorDict.hasOwnProperty(el)
-                && typeof(this.actorDict[el]) === 'function'
-                && (this.actorDict[el].prototype instanceof Actor
-                    || Object.create(this.actorDict[el].prototype) instanceof Actor)) {
-                        actorMap.push( Object.create(this.actorDict[el].prototype) );
-                } else {
-                    return [];
-                }
+            const tempArray =[];
+            array.forEach( (el) => tempArray.push( el.split('') ) );
+
+            tempArray.forEach( (row, index) => {
+                row.forEach( (cell, num ) => {
+                    if(this.actorDict.hasOwnProperty(cell)
+                    && typeof(this.actorDict[cell]) === 'function'
+                    && (this.actorDict[cell].prototype instanceof Actor
+                        || Object.create(this.actorDict[cell].prototype) instanceof Actor)) {
+                        actorMap.push( new this.actorDict[cell](new Vector(num, index)) );
+                    } else {
+                        return [];
+                    }
+                })
             })
         }
-
         return actorMap;
     }
 
@@ -395,12 +399,12 @@ const actorDict = {
 const plan = [
     'o   o',
     '  z  ',
-    'o   o'
+    '@   |'
 ];
 
 class BadActor {};
 
-const parser = new LevelParser({ o: Gift, z: Mushroom });
+const parser = new LevelParser(actorDict);
 const actors = parser.createActors(plan);
 
 console.log(actors);
