@@ -365,8 +365,7 @@ class LevelParser {
 
             tempArray.forEach( (row, index) => {
                 row.forEach( (cell, num ) => {
-                    if(this.actorDict.hasOwnProperty(cell)
-                    && typeof(this.actorDict[cell]) === 'function'
+                    if(typeof(this.actorDict[cell]) === 'function'
                     && (this.actorDict[cell].prototype instanceof Actor
                         || Object.create(this.actorDict[cell].prototype) instanceof Actor)) {
                         actorMap.push( new this.actorDict[cell](new Vector(num, index)) );
@@ -379,37 +378,39 @@ class LevelParser {
         return actorMap;
     }
 
+    parse(array) {
+        return new Level(this.createGrid(array), this.createActors(array));
+    }
+
 }
 
 // const actorDict = {
 //     'x': 'wall',
-//     '!': 'lava'
+//     '!': 'lava',
+//     '@': Player,
+//     'o': Coin,
+//     '=': HorizontalFireball,
+//     '|': VerticalFireball,
+//     'v': FireRain
 // }
 
-const actorDict = {
-    'x': 'wall',
-    '!': 'lava',
-    '@': Player,
-    'o': Coin,
-    '=': HorizontalFireball,
-    '|': VerticalFireball,
-    'v': FireRain
-}
-
-const plan = [
-    'o   o',
-    '  z  ',
-    '@   |'
+const schema = [
+    '         ',
+    '         ',
+    '    =    ',
+    '       o ',
+    '     !xxx',
+    ' @       ',
+    'xxx!     ',
+    '         '
 ];
-
-class BadActor {};
-
+const actorDict = {
+    '@': Player,
+    '=': HorizontalFireball
+}
 const parser = new LevelParser(actorDict);
-const actors = parser.createActors(plan);
-
-console.log(actors);
-
-
-
+const level = parser.parse(schema);
+runLevel(level, DOMDisplay)
+.then(status => console.log(`Игрок ${status}`));
 
 
