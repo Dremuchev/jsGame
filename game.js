@@ -153,18 +153,11 @@ class Level {
             return 'wall';
         } else if( pos.y > this.height - size.y ) {
             return 'lava';
-        } else if( !Number.isInteger(pos.x) || !Number.isInteger(pos.y) ) {
-            if( this.grid[Math.floor(pos.y)][Math.floor(pos.x)] !== 'wall'
-            || this.grid[Math.floor(pos.y)][Math.floor(pos.x + size.x)] !== 'wall'
-            || this.grid[Math.floor(pos.y)][Math.floor(pos.x)] !== 'wall'
-            || this.grid[Math.floor(pos.y)][Math.floor(pos.x + size.x)] !== 'wall' ) {
-                return undefined;
-            } else {
-                return 'wall';
-            }
-        } else if( this.grid[pos.y][pos.x] === 'wall' ) {
+        } else if( this.grid[Math.ceil(pos.y)][Math.floor(pos.x)] === 'wall'
+        || this.grid[Math.floor(pos.y)][Math.ceil(pos.x)] === 'wall' ) {
             return 'wall';
-        } else if( this.grid[pos.y][pos.x] === 'lava' ) {
+        } else if( this.grid[Math.ceil(pos.y)][Math.floor(pos.x)] === 'lava'
+        || this.grid[Math.floor(pos.y)][Math.ceil(pos.x)] === 'lava' ) {
             return 'lava';
         } else {
             return undefined;
@@ -385,3 +378,23 @@ class Gift extends Actor {
         this.typeName = 'gift';
     }
 }
+
+const schema = [
+    '         ',
+    '      !  ',
+    '  =      ',
+    '  x    o ',
+    '     !xxx',
+    ' @  |    ',
+    'xxx!     ',
+    '    x    '
+];
+const actorDict = {
+    '@': Player,
+    '=': HorizontalFireball,
+    '|': VerticalFireball
+}
+const parser = new LevelParser(actorDict);
+const level = parser.parse(schema);
+console.log(level);
+runLevel(level, DOMDisplay);
