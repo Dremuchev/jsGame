@@ -25,13 +25,13 @@ class Actor {
         if (pos instanceof Vector && size instanceof Vector && speed instanceof Vector) {
             this.pos = pos,
             this.size = size,
-            this.speed = speed,
-            this.act = function () {},
-            this.typeName = 'actor';
+            this.speed = speed
         } else {
             throw new Error('Неверные аргументы!');
         }
     }
+
+    act() {}
 
     get left() {
         return this.pos.x;
@@ -50,7 +50,7 @@ class Actor {
     }
 
     get type() {
-        return this.typeName;
+        return 'actor';
     }
 
     isIntersect(movingObject) {
@@ -154,10 +154,10 @@ class Level {
         } else if( pos.y > this.height - size.y ) {
             return 'lava';
         } else if( this.grid[Math.ceil(pos.y)][Math.floor(pos.x)] === 'wall'
-        || this.grid[Math.floor(pos.y)][Math.ceil(pos.x)] === 'wall' ) {
+        || this.grid[Math.ceil(pos.y)][Math.ceil(pos.x)] === 'wall' ) {
             return 'wall';
         } else if( this.grid[Math.ceil(pos.y)][Math.floor(pos.x)] === 'lava'
-        || this.grid[Math.floor(pos.y)][Math.ceil(pos.x)] === 'lava' ) {
+        || this.grid[Math.ceil(pos.y)][Math.ceil(pos.x)] === 'lava' ) {
             return 'lava';
         } else {
             return undefined;
@@ -189,8 +189,25 @@ class Level {
             }
         }
     }
-
 }
+
+// const player = new Player(new Vector(1, 1));
+// const level = new Level(undefined, [ player, mushroom ]);
+// const actor = level.actorAt(player);
+// console.log(actor)
+
+// const grid = [
+//     Array(4),
+//     [undefined, undefined, 'wall', undefined],
+//     Array(4),
+//     Array(4)
+// ];
+//
+// const level = new Level(grid);
+// const position = new Vector(1.2, 1.5);
+// const size = new Vector(0.8, 1.5);
+// const nothing = level.obstacleAt(position, size);
+// console.log(grid[Math.ceil(position.y)][Math.floor(position.x)], grid[Math.ceil(position.y)][Math.ceil(position.x)]);
 
 class LevelParser {
     constructor(actorDict) {
@@ -265,16 +282,20 @@ class Fireball extends Actor {
         super();
         this.pos = pos;
         this.speed = speed;
-        this.typeName = 'fireball';
-        this.act = function(time, level) {
-            const nextPos = this.getNextPosition(time);
-            if(level.obstacleAt(nextPos, this.size) === undefined) {
-                this.pos.x = nextPos.x;
-                this.pos.y = nextPos.y;
-            } else {
-                this.handleObstacle();
-            }
+    }
+
+    act(time, level) {
+        const nextPos = this.getNextPosition(time);
+        if(level.obstacleAt(nextPos, this.size) === undefined) {
+            this.pos.x = nextPos.x;
+            this.pos.y = nextPos.y;
+        } else {
+            this.handleObstacle();
         }
+    }
+
+    get type() {
+        return 'fireball';
     }
 
     getNextPosition(time) {
@@ -315,9 +336,9 @@ class VerticalFireball extends Fireball {
 class FireRain extends Fireball {
     constructor(pos) {
         super(pos);
-        this.pos = pos;
         this.speed = new Vector(0, 3);
         this.basePos = pos;
+
     }
 
     handleObstacle() {
@@ -330,14 +351,18 @@ class Coin extends Actor {
         super(pos);
         this.pos = pos.plus(new Vector(0.2, 0.1));
         this.size = new Vector(0.6, 0.6);
-        this.typeName = 'coin';
-        this.spring = Math.random() * ((2*Math.PI) - 0) + 0;
+        this.spring = Math.random() * ((2 * Math.PI) - 0) + 0;
         this.springSpeed = 8;
         this.springDist = 0.07;
         this.basePos = pos.plus(new Vector(0.2, 0.1));
-        this.act = function (time) {
-            this.pos = this.getNextPosition(time);
-        }
+    }
+
+    act(time) {
+        this.pos = this.getNextPosition(time);
+    }
+
+    get type() {
+        return 'coin';
     }
 
     updateSpring(time = 1) {
@@ -358,43 +383,75 @@ class Coin extends Actor {
 
 class Player extends Actor {
     constructor(pos = new Vector()) {
-        super(pos);
+        super();
         this.pos = pos.plus(new Vector(0, -0.5));
         this.size = new Vector(0.8, 1.5);
-        this.typeName = 'player';
+    }
+
+    get type() {
+        return 'player';
     }
 }
 
 class Mushroom extends Actor {
     constructor(pos = new Vector()) {
         super(pos);
-        this.typeName = 'mushroom';
+    }
+
+    get type() {
+        return 'mushroom';
     }
 }
 
 class Gift extends Actor {
     constructor(pos = new Vector()) {
         super(pos);
-        this.typeName = 'gift';
+    }
+
+    get type() {
+        return 'gift';
     }
 }
 
-const schema = [
-    '         ',
-    '      !  ',
-    '  =      ',
-    '  x    o ',
-    '     !xxx',
-    ' @  |    ',
-    'xxx!     ',
-    '    x    '
+const schemas = [
+    [
+        '         ',
+        '      o  ',
+        '    =    ',
+        '       o ',
+        '     !xxx',
+        ' @       ',
+        'xxx!     ',
+        '         '
+    ],
+    [
+    '      v  ',
+    '    v    ',
+    '  v      ',
+    '        o',
+    '        x',
+    '@   x    ',
+    'x        ',
+    '         '
+    ],
+    [
+    '      v                ',
+    '    v      =          x',
+    '  v         x          ',
+    '        o              ',
+    '        x   x        o ',
+    '@   x       x   =      ',
+    'x           xxxxxxxxxxx',
+    '                       '
+    ]
 ];
 const actorDict = {
     '@': Player,
-    '=': HorizontalFireball,
-    '|': VerticalFireball
+    'v': FireRain,
+    'o': Coin,
+    '=': HorizontalFireball
 }
 const parser = new LevelParser(actorDict);
-const level = parser.parse(schema);
-console.log(level);
-runLevel(level, DOMDisplay);
+runGame(schemas, parser, DOMDisplay)
+.then(() => alert('Вы выиграли приз!'));
+
