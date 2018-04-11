@@ -60,36 +60,16 @@ class Actor {
         if (Object.is(this, movingObject)) {
             return false;
         }
-        if (this.left === movingObject.left
-            && this.top === movingObject.top
-            && (movingObject.right < 0 || movingObject.bottom < 0)) {
+        if(movingObject.bottom <= this.top || movingObject.top >= this.bottom) {
             return false;
-        }
-        if (this.top === movingObject.bottom
-            || this.right === movingObject.left
-            || this.bottom === movingObject.top
-            || this.left === movingObject.right) {
+        } if (movingObject.right <= this.left || movingObject.left >= this.right) {
             return false;
-        }
-        if (((((this.left >= movingObject.left) && (this.left <= movingObject.right))
-            || ((this.right >= movingObject.left) && (this.right <= movingObject.right))))
-            && (((this.top >= movingObject.top) && (this.top <= movingObject.bottom))
-            || ((this.bottom >= movingObject.top) && (this.bottom <= movingObject.bottom))
-            || ((this.top <= movingObject.top) && (this.bottom >= movingObject.bottom)))) {
-            return true;
-        }
-
-        if (((((movingObject.left >= this.left) && (movingObject.left <= this.right))
-            || ((movingObject.right >= this.left) && (movingObject.right <= this.right))))
-            && (((movingObject.top >= this.top) && (movingObject.top <= this.bottom))
-            || ((movingObject.bottom >= this.top) && (movingObject.bottom <= this.bottom))
-            || ((movingObject.top <= this.top) && (movingObject.bottom >= this.bottom)))) {
-            return true;
         } else {
-            return false;
+            return true;
         }
     }
 }
+
 
 class Level {
     constructor(grid = [], actors = []) {
@@ -149,15 +129,21 @@ class Level {
             return 'wall';
         } else if(pos.y > this.height - size.y) {
             return 'lava';
-        } else if(this.grid[Math.ceil(pos.y)][Math.floor(pos.x)] === 'wall'
-        || this.grid[Math.ceil(pos.y)][Math.ceil(pos.x)] === 'wall') {
-            return 'wall';
-        } else if(this.grid[Math.ceil(pos.y)][Math.floor(pos.x)] === 'lava'
-        || this.grid[Math.ceil(pos.y)][Math.ceil(pos.x)] === 'lava') {
-            return 'lava';
-        } else {
-            return undefined;
         }
+        let result;
+        this.grid.forEach((row, rowIndex) => {
+            if(rowIndex >= Math.floor(pos.y) && rowIndex < Math.ceil(pos.y + size.y)) {
+                row.forEach((cell, cellIndex) => {
+                    if(cellIndex >= Math.floor(pos.x) && cellIndex < Math.ceil(pos.x + size.x)) {
+                        if (this.grid[rowIndex][cellIndex]) {
+                            result = this.grid[rowIndex][cellIndex];
+                        }
+                    }
+                })
+            }
+            return result;
+        })
+        return result;
     }
 
     removeActor(actor) {
@@ -176,14 +162,14 @@ class Level {
 
     playerTouched(object, actor) {
         if(this.status === null) {
-            if(object === 'lava' || object === 'fireball') {
-                this.status = 'lost';
-            }
             if(object === 'coin' && actor !== undefined) {
                 this.actors.splice( this.actors.indexOf(actor), 1);
                 if(!( this.actors.find( (el) => el.type === 'coin' ))) {
                     this.status = 'won';
                 }
+            }
+            if(object === 'lava' || object === 'fireball') {
+                this.status = 'lost';
             }
         }
     }
@@ -359,7 +345,7 @@ class Coin extends Actor {
 class Player extends Actor {
     constructor(pos = new Vector()) {
         super();
-        this.pos = pos.plus(new Vector(0, -0.5));
+        this.pos = new Vector(pos.x, pos.y - 0.5);
         this.size = new Vector(0.8, 1.5);
     }
 
@@ -404,7 +390,8 @@ const actorDict = {
     '@': Player,
     'v': FireRain,
     'o': Coin,
-    '=': HorizontalFireball
+    '=': HorizontalFireball,
+    '|': VerticalFireball
 }
 const parser = new LevelParser(actorDict);
 runGame(schemas, parser, DOMDisplay)
