@@ -60,9 +60,7 @@ class Actor {
         if (Object.is(this, movingObject)) {
             return false;
         }
-        if(movingObject.bottom <= this.top || movingObject.top >= this.bottom) {
-            return false;
-        } if (movingObject.right <= this.left || movingObject.left >= this.right) {
+        if(movingObject.bottom <= this.top || movingObject.top >= this.bottom || movingObject.right <= this.left || movingObject.left >= this.right) {
             return false;
         } else {
             return true;
