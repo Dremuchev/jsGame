@@ -61,7 +61,7 @@ class Actor {
         if (this === movingObject) {
             return false;
         }
-        return (movingObject.bottom > this.top && movingObject.top < this.bottom && movingObject.right > this.left && movingObject.left < this.right);
+        return (!(movingObject.bottom <= this.top || movingObject.top >= this.bottom || movingObject.right <= this.left || movingObject.left >= this.right));
     }
 }
 
@@ -107,7 +107,9 @@ class Level {
         }
         for(let i = Math.floor(pos.y); i < Math.ceil(pos.y + size.y); i++) {
             for(let j = Math.floor(pos.x); j < Math.ceil(pos.x + size.x); j++) {
-                return this.grid[i][j];
+                if(this.grid[i][j]) {
+                    return this.grid[i][j];
+                }
             }
         }
     }
@@ -282,7 +284,6 @@ class Coin extends Actor {
 class Player extends Actor {
     constructor(pos) {
         super(pos, pos);
-        // pos, size должны задаваться через конструктор родительского класса
         this.pos = new Vector(this.pos.x, this.pos.y - 0.5);
         this.size = new Vector(0.8, 1.5);
     }
