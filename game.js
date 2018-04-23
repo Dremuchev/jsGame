@@ -160,7 +160,6 @@ class LevelParser {
     createActors(array) {
         const actorMap =[];
         const tempArray = array.map((el) => el.split(''));
-        console.log(tempArray);
         tempArray.forEach( (row, rowIndex) => { row.forEach( (cell, numIndex) => {
             const isConstructor = this.actorDict[cell];
 
