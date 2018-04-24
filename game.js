@@ -52,7 +52,7 @@ class Actor {
     }
 
     isIntersect(movingObject) {
-        if (!(movingObject instanceof Actor) || movingObject === null) {
+        if (!(movingObject instanceof Actor)) {
             throw new Error('Неверный аргумент!');
         }
         if (this === movingObject) {
@@ -70,8 +70,7 @@ class Level {
         this.player = actors.find((el) => el.type === 'player');
         this.status = null;
         this.finishDelay = 1;
-        const nextArray = grid.map((el) => el.length);
-        this.width =  Math.max(0, ...nextArray);
+        this.width =  Math.max(0, ...grid.map((el) => el.length));
         this.height = grid.length;
     }
 
@@ -96,10 +95,10 @@ class Level {
         if(pos.y > this.height - size.y) {
             return 'lava';
         }
-        const top = Math.floor(pos.y),
-        bottom = Math.ceil(pos.y + size.y),
-        left = Math.floor(pos.x),
-        right = Math.ceil(pos.x + size.x);
+        const top = Math.floor(pos.y);
+        const bottom = Math.ceil(pos.y + size.y);
+        const left = Math.floor(pos.x);
+        const right = Math.ceil(pos.x + size.x);
         for(let i = top; i < bottom; i++) {
             for(let j = left; j < right; j++) {
                 const foundObstacle = this.grid[i][j];
@@ -153,28 +152,16 @@ class LevelParser {
     }
 
     createGrid(array) {
-        const mapLevel = array.map( (el) => el.split('') );
-        return mapLevel.map( (row) => row.map( (cell) => this.obstacleFromSymbol(cell) ) );
+        return array.map((el) => el.split('')).map( (row) => row.map((cell) => this.obstacleFromSymbol(cell)));
     }
 
     createActors(array) {
         const actorMap =[];
         const tempArray = array.map((el) => el.split(''));
-        console.log(tempArray);
         tempArray.forEach( (row, rowIndex) => { row.forEach( (cell, numIndex) => {
-            const isConstructor = this.actorDict[cell];
-
-            /*
-            если я создаю объект на основе константы isConstructor,
-            я получаю ошибку, undefined - не является конструктором,
-            поэтому, считаю, что целесообразнее проверить константу
-            на принадлежность к конструкторам, а уже потом создавать
-            объект с последующей проверкой на наследование...
-            считаю, что он боле менее краток и понятен.
-            */
-
-            if(typeof (isConstructor) === 'function') {
-                const actor = new isConstructor(new Vector(numIndex, rowIndex));
+            const actorType = this.actorDict[cell];
+            if(typeof (actorType) === 'function') {
+                const actor = new actorType(new Vector(numIndex, rowIndex));
                 if(actor instanceof Actor) {
                     actorMap.push(actor);
                 }
@@ -246,13 +233,7 @@ class FireRain extends Fireball {
 }
 
 class Coin extends Actor {
-
-    /*
-    добавил значение по умолчанию дабы исключить ошибку при
-    создании монетки без аргументов new Coin()
-     */
-
-    constructor(pos = new Vector()) {
+    constructor(pos = new Vector(0, 0)) {
         super(pos.plus(new Vector(0.2, 0.1)), new Vector(0.6, 0.6));
         this.spring = Math.random() * 2 * Math.PI;
         this.springSpeed = 8;
@@ -285,13 +266,7 @@ class Coin extends Actor {
 }
 
 class Player extends Actor {
-
-    /*
-    добавил значение по умолчанию дабы исключить ошибку при
-    создании монетки без аргументов new Player()
-     */
-
-    constructor(pos = new Vector()) {
+    constructor(pos = new Vector(0, 0)) {
         super(new Vector(pos.x, pos.y - 0.5), new Vector(0.8, 1.5));
     }
 
